@@ -4,10 +4,11 @@ pragma solidity ^0.8.26;
 contract piggybank {
 
     event DepositedSuccessfully(uint256 indexed amount);
-    event WithdrawalSuccessful(uint256 amt);
+    event WithdrawalSuccessful(uint256 amt, uint256 time);
 
     address public owner;
     uint256 deadline = block.timestamp + 8 days;
+    
     mapping(address => bool) public deposited;
     mapping(address => bool) public withdrawn;
 
@@ -21,16 +22,12 @@ contract piggybank {
     }
 
     function deposit() payable public onlyOwner {
-        uint amount = 0.0001 ether;
         require(msg.sender != address(0), "No zero Address");
-        require(amount > 0);
-
-       (bool success, ) = payable(address(this)).call{value: amount}("");
-        require(success, "Deposited successful");
-
+        require(msg.value > 0);
+        
         deposited[msg.sender] = true;
 
-        emit DepositedSuccessfully(amount);
+        emit DepositedSuccessfully(msg.value);
 
     }
 
@@ -38,13 +35,16 @@ contract piggybank {
          require(msg.sender != address(0), "No zero Address");
          require(address(this).balance > 0);
          require(withdrawn[msg.sender] == true, "you have withdrawn your money");
+         require(block.timestamp < deadline, "you can not withdraw at this time");
+
          if(block.timestamp == deadline){
             (bool success, ) = payable(owner).call{value: address(this).balance}("");
             require(success, "Withdrawal successful");
             withdrawn[msg.sender] = true;
+        
          }
-
-         emit WithdrawalSuccessful(address(this).balance);
+        uint contractBalance = address(this).balance;
+        emit WithdrawalSuccessful(contractBalance, block.timestamp);
 
     }
 

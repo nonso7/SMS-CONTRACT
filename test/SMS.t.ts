@@ -61,7 +61,7 @@ describe('Piggy bank test', () => {
 
     describe('deposit should only be called by owner', () => {
         it('the owner should call the deposite function', async () => {
-            const depositAmount = hre.ethers.parseEther("1")
+            const depositAmount = ethers.parseEther("1")
 
             let {deployBank, owner, account1} = await loadFixture(deployEventContract);
 
@@ -73,7 +73,7 @@ describe('Piggy bank test', () => {
         });
 
         it('another user to be able to call the deposite function', async () => {
-            const depositAmount = hre.ethers.parseEther("1")
+            const depositAmount = ethers.parseEther("1")
 
             let {deployBank, owner, account1} = await loadFixture(deployEventContract);
 
@@ -83,24 +83,24 @@ describe('Piggy bank test', () => {
         });
 
         it("should fund an impersonated account before depositing", async function () {
-            const depositAmount = hre.ethers.parseEther("1");
+            const depositAmount = ethers.parseEther("1");
             const IMPERSONATED_ADDRESS = "0x0000000000000000000000000000000000000000";
         
             let { deployBank, owner } = await loadFixture(deployEventContract);
         
             // Enable impersonation
             await hre.network.provider.send("hardhat_impersonateAccount", [IMPERSONATED_ADDRESS]);
-            const impersonatedSigner = await hre.ethers.getSigner(IMPERSONATED_ADDRESS);
+            const impersonatedSigner = await ethers.getSigner(IMPERSONATED_ADDRESS);
         
             // Fund the impersonated account
             await owner.sendTransaction({
                 to: IMPERSONATED_ADDRESS,
-                value: hre.ethers.parseEther("2"),
+                value: ethers.parseEther("2"),
             });
         
             // Verify balance
-            const balance = await hre.ethers.provider.getBalance(IMPERSONATED_ADDRESS);
-            expect(balance).to.be.gte(hre.ethers.parseEther("2"));
+            const balance = await ethers.provider.getBalance(IMPERSONATED_ADDRESS);
+            expect(balance).to.be.gte(ethers.parseEther("2"));
         
             // Expect deposit to revert since msg.sender is zero address
             await expect(
@@ -119,11 +119,11 @@ describe('Piggy bank test', () => {
         });
 
         it('amount was sent successfully', async () => {
-            const depositAmount = hre.ethers.parseEther("1");
+            const depositAmount = ethers.parseEther("1");
 
             let {deployBank, owner, account1} = await loadFixture(deployEventContract);
 
-            let initialContractBalance = await hre.ethers.provider.getBalance(deployBank.target);
+            let initialContractBalance = await ethers.provider.getBalance(deployBank.target);
 
             await expect(
                 deployBank.connect(owner).deposit({ value: depositAmount })
